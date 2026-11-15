@@ -123,8 +123,10 @@ def test_recall_with_scores_single_pattern():
 
 def test_interference_matrix_properties():
     mem = WaveMemory(dim=16)
+    # Disjoint +1 supports are ANTI-correlated for bipolar patterns (|overlap|=1).
+    # Use genuinely orthogonal patterns instead.
     p1 = _pattern(16, range(8))
-    p2 = _pattern(16, range(8, 16))
+    p2 = _pattern(16, list(range(4)) + list(range(12, 16)))
     mem.write_many([p1, p2])
     mat = mem.interference_matrix()
     assert mat.shape == (2, 2)
@@ -135,7 +137,9 @@ def test_interference_matrix_properties():
 def test_interference_matrix_detects_overlap():
     mem = WaveMemory(dim=16)
     p1 = _pattern(16, range(8))
-    p2 = _pattern(16, range(4, 12))
+    # Share most of the +1 support (flip only 2 bits) => strong positive overlap.
+    p2 = p1.copy()
+    p2[[0, 1]] *= -1
     mem.write_many([p1, p2])
     mat = mem.interference_matrix()
     assert mat[0, 1] > 0.0
