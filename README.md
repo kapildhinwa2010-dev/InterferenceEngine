@@ -1,27 +1,26 @@
 # InterferenceEngine
 
-Wave-lattice associative memory with interference recall.
+[![CI](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/ci.yml)
+[![CI](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/codeql.yml/badge.svg)](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/codeql.yml)
+
+Wave-lattice associative memory with interference recall and noisy-cue cleanup.
 
 **Part of the [Kapildhinwa2010-dev Toolkit](https://github.com/kapildhinwa2010-dev/Kapildhinwa2010-dev).**
 
-![CI](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/ci.yml/badge.svg)
-![CodeQL](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/codeql.yml/badge.svg)
-![Python](https://img.shields.io/badge/python-3.9%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+## What it does
 
-## ✨ Features
+WaveMemory stores bipolar (+/-1) patterns in a superposed wave
+lattice and recalls them by interference: write_many() to load
+patterns, recall() from a noisy cue, cleanup() with a flip-tolerance
+check. Pure numpy.
 
-- Superposed wave lattice with interference-based recall
-- Noisy-cue cleanup with tolerance checks
-- Pure numpy, bipolar (+/-1) patterns
-
-## 📦 Install
+## Install
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 🚀 Quick start
+## Quick start
 
 ```python
 from interferenceengine import WaveMemory
@@ -31,12 +30,21 @@ mem.write_many([p1, p2])
 print(np.array_equal(mem.recall(noisy_cue), p1))
 ```
 
-## 🧪 Tests
+## API
 
-```bash
-pytest tests/ -v
-```
+- write / write_many / recall / cleanup
+- hamming_distance(a, b)
 
-## 📄 License
+## Honest results and limitations
 
-MIT — see [LICENSE](LICENSE).
+- Interference recall degrades quickly as pattern count grows
+  (cross-talk); capacity is a hint, not a measured law.
+- The lattice dynamics are element-wise sign updates, not a full
+  outer-product Hopfield network (see Memory-Lib for that).
+- Negative result from the source experiments: carrier-mode recall
+  under heavier noise failed about half the trials in the
+  reserv.dean-part-2 log.
+
+## License
+
+MIT - see [LICENSE](LICENSE).
