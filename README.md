@@ -1,7 +1,8 @@
 # InterferenceEngine
 
 [![CI](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/ci.yml)
-[![CI](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/codeql.yml/badge.svg)](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/codeql.yml)
+[![CodeQL](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/codeql.yml/badge.svg)](https://github.com/kapildhinwa2010-dev/InterferenceEngine/actions/workflows/codeql.yml)
+
 
 Wave-lattice associative memory with interference recall and noisy-cue cleanup.
 
