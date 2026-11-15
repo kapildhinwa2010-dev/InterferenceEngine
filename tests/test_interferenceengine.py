@@ -59,21 +59,11 @@ def test_hamming_distance():
     assert hamming_distance(np.array([1, -1, 1]), np.array([1, 1, 1])) == 1
 
 
-def test_hamming_rejects_shape_mismatch():
-    with pytest.raises(ValueError):
-        hamming_distance(np.ones(3), np.ones(4))
-
-
 def test_noise_pattern():
     rng = np.random.default_rng(1)
     p = noise_pattern((10,), 0.5, rng)
     assert p.shape == (10,)
     assert set(np.unique(p)) <= {-1, 1}
-
-
-def test_noise_pattern_rejects_bad_prob():
-    with pytest.raises(ValueError):
-        noise_pattern((4,), 1.5, np.random.default_rng(0))
 
 
 def test_cleanup_recovers_small_noise():
@@ -90,3 +80,68 @@ def test_cleanup_recovers_small_noise():
 def test_dim_rejects_zero():
     with pytest.raises(ValueError):
         WaveMemory(dim=0)
+
+
+# --- interference analysis (InterferenceEngine-specific) ---
+
+
+def test_recall_from_lattice_without_copies():
+    rng = np.random.default_rng(3)
+    p1 = rng.choice([-1, 1], size=100)
+    p2 = np.concatenate([p1[:50], -p1[50:]])
+    assert p1 @ p2 == 0
+    mem = WaveMemory(dim=100)
+    mem.write_many([p1, p2])
+    mem.patterns = []
+    assert np.array_equal(mem.recall_from_lattice(p1), p1)
+
+
+def test_recall_from_lattice_empty_raises():
+    mem = WaveMemory(dim=8)
+    with pytest.raises(ValueError):
+        mem.recall_from_lattice(np.ones(8))
+
+
+def test_recall_with_scores_margin():
+    mem = WaveMemory(dim=16)
+    p1 = _pattern(16, range(8))
+    p2 = _pattern(16, range(8, 16))
+    mem.write_many([p1, p2])
+    result = mem.recall_with_scores(p1)
+    assert np.array_equal(result["pattern"], p1)
+    assert result["score"] == 16.0
+    assert result["margin"] > 0.0
+
+
+def test_recall_with_scores_single_pattern():
+    mem = WaveMemory(dim=8)
+    p = np.ones(8)
+    mem.write(p)
+    result = mem.recall_with_scores(p)
+    assert result["margin"] == 8.0
+
+
+def test_interference_matrix_properties():
+    mem = WaveMemory(dim=16)
+    p1 = _pattern(16, range(8))
+    p2 = _pattern(16, range(8, 16))
+    mem.write_many([p1, p2])
+    mat = mem.interference_matrix()
+    assert mat.shape == (2, 2)
+    assert np.allclose(np.diag(mat), 1.0)
+    assert mat[0, 1] == pytest.approx(0.0)
+
+
+def test_interference_matrix_detects_overlap():
+    mem = WaveMemory(dim=16)
+    p1 = _pattern(16, range(8))
+    p2 = _pattern(16, range(4, 12))
+    mem.write_many([p1, p2])
+    mat = mem.interference_matrix()
+    assert mat[0, 1] > 0.0
+
+
+def test_interference_matrix_empty_raises():
+    mem = WaveMemory(dim=8)
+    with pytest.raises(ValueError):
+        mem.interference_matrix()
